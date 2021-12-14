@@ -1,5 +1,4 @@
-
-
+from pyspark.sql import SparkSession
 from subprocess import PIPE, Popen
 import requests
 import datetime
@@ -11,6 +10,11 @@ import csv
 def utf_8_encoder(unicode_csv_data):
     for line in unicode_csv_data:
         yield line.encode('utf-8')
+
+def init_spark():
+  spark = SparkSession.builder.appName("HelloWorld").getOrCreate()
+  sc = spark.sparkContext
+  return spark,sc
 
 def main():
 	current_date = datetime.datetime.now().replace(microsecond=0).isoformat()
@@ -41,6 +45,9 @@ def main():
 	#print(df.shape)
 	#df.head(5)
 	#df.to_csv("daily_data.csv", index=False)
+	spark,sc = init_spark()
+	put = Popen(["hdfs", "dfs", "-put", "daily_data.csv", "hdfs/data/g6/raw/daily_data.csv"], stdin=PIPE, bufsize=-1)
+	put.communicate()
 
 if __name__ == '__main__':
 	main()
