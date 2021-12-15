@@ -49,7 +49,7 @@ def main():
 	#df.to_csv("daily_data.csv", index=False)
 	spark,sc = init_spark()
 	# put = Popen(["hdfs", "dfs", "-put", "daily_data.csv", "hdfs/data/g6/raw/daily_data.csv"], stdin=PIPE, bufsize=-1)
-	subprocess.call(['hadoop fs -copyFromLocal daily_data.csv hdfs:///hdfs/data/g6/raw/daily_data.csv'], shell=True) # pas sur du chemin HDFS
+	subprocess.call(['hadoop fs -copyFromLocal daily_data.csv  hdfs:///data/g6/raw/daily_data.csv'], shell=True) # pas sur du chemin HDFS
 	# put.communicate()
 
 if __name__ == '__main__':
