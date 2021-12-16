@@ -66,3 +66,9 @@ if __name__ == '__main__':
 		print('format date : ',pendulum.parse(sys.argv[1]))
 		print("au format requete : ",pendulum.parse(sys.argv[1]).replace(microsecond=0).replace(second=0).replace(minute=0).replace(hour=0).isoformat())
 	main(pendulum.parse(sys.argv[1]).replace(microsecond=0).replace(second=0).replace(minute=0).replace(hour=0))
+
+
+#airflow tasks test dag_dl_daily execute_command 2021-12-15
+#yes | cp -f dag_dl_daily.py /root/airflow/dags/
+
+
