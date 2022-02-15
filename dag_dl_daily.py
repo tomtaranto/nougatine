@@ -31,7 +31,7 @@ def dag_projet():
     @task()
     def execute_command(date):
         print(date)
-        put = Popen(["python3", "/requete.py", date], stdin=PIPE, bufsize=-1)
+        put = Popen(["python3", "requete.py", date], stdin=PIPE, bufsize=-1)
         put.communicate()
 
     # paths >> filepath >> load >> cleaning
