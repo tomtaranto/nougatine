@@ -41,11 +41,9 @@ def dag_projet():
         current_date = pendulum.parse(date).isoformat()
         print("current date : ", current_date)
         # file_path ="hdfs:/b4e7ed5c-ee42-48a8-9e36-fc2543871326.pub.instances.scw.cloud://data/g6/raw/daily_data2_"+current_date[:10]+".csv"
-        file_path = "hdfs://8de53d22-71e8-443c-b675-78414b8d54df.priv.instances.scw.cloud:8020/data/g6/raw/daily_data2_" + current_date[
-                                                                                                                           :10] + ".csv"
+        file_path = "hdfs://8de53d22-71e8-443c-b675-78414b8d54df.priv.instances.scw.cloud:8020/data/g6/raw/daily_data2_" + current_date[:10] + ".csv"
 
-        file_path_out = "hdfs://8de53d22-71e8-443c-b675-78414b8d54df.priv.instances.scw.cloud:8020/data/g6/clean/daily_data2_" + current_date[
-                                                                                                                                 :10] + ".parquet"
+        file_path_out = "hdfs://8de53d22-71e8-443c-b675-78414b8d54df.priv.instances.scw.cloud:8020/data/g6/clean/daily_data2_" + current_date[:10] + ".parquet"
 
         spark = SparkSession.builder.getOrCreate()
         df = spark.read.option("delimiter", ";").csv(file_path, header=True)
@@ -64,8 +62,36 @@ def dag_projet():
         # df.to_parquet(file_path_out, partition_col = ["year","month","day"])
         return
 
+    @task
+    def merge(date):
+        current_date = pendulum.parse(date).isoformat()
+        spark = SparkSession.builder.getOrCreate()
+        print("loading 1 : ")
+        file_path = "hdfs://8de53d22-71e8-443c-b675-78414b8d54df.priv.instances.scw.cloud:8020/data/g6/clean/daily_data2_" + current_date[
+                                                                                                                                 :10] + ".parquet"
+        print("loading 2 : ")
+        merging_path = "hdfs://8de53d22-71e8-443c-b675-78414b8d54df.priv.instances.scw.cloud:8020/data/g6/clean/merging_df.csv"
+        print("loading 3 : ")
+        merging_path2 = "hdfs://8de53d22-71e8-443c-b675-78414b8d54df.priv.instances.scw.cloud:8020/data/g6/clean/merging_df2.csv"
+
+        print("OP 1 : ")
+        df1 = spark.read.parquet(file_path)
+        print("OP 2 : ")
+        df2 = spark.read.option("delimiter",";").csv(merging_path, header=True)
+        print("OP 3 : ")
+        df3 = spark.read.option("delimiter",";").csv(merging_path2,header=True)
+        print("OP 4 : ")
+        df_merged = df1.join(df2.select('iu_ac', 'c_qu'), on=['iu_ac'], how='left')
+        print("OP 5 : ")
+        df_merged = df_merged.join(df3.select('c_qu', 'l_qu', 'c_ar', 'geom', 'geom_x_y'), on=['c_qu'], how='left')
+        #df_merged = df_merged.where((F.col('k') != ''))
+        print("OP 6 : ")
+        df_merged.coalesce(1).write.option("header","true").csv("hdfs://8de53d22-71e8-443c-b675-78414b8d54df.priv.instances.scw.cloud:8020/data/g6/out/"+current_date[:10])
+
+
     job = execute_command("{{ execution_date }}")
     cleaning_job = clean("{{ execution_date }}")
+    merging_job = merge("{{ execution_date }}")
 
 
 dag_projet_instances = dag_projet()  # Instanciation du DAG
@@ -81,3 +107,5 @@ dag_projet_instances = dag_projet()  # Instanciation du DAG
 
 # On doit mkdir dans airflow si ya plus le dossier
 # mkdir /root/aiflow/dags
+# Copie de local to cluster :
+# scp -i iabd /home/ttaranto/Travail/Automatisation/* root@b4e7ed5c-ee42-48a8-9e36-fc2543871326.pub.instances.scw.cloud:/root/g6

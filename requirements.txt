@@ -2,3 +2,5 @@ requests
 pendulum
 pandas
 pyspark
+matplotlib
+tqdm
