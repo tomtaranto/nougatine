@@ -54,7 +54,7 @@ def main(date):
 	local_file = '/tmp/daily_data_'+current_date[:10]+'.csv'
 	print(local_file)
 	hdfs_file = "hdfs:///data/g6/raw/daily_data2_"+current_date[:10]+".csv"
-	put = Popen(["hadoop", "fs", "-copyFromLocal", local_file, hdfs_file], stdin=PIPE, bufsize=-1)
+	put = Popen(["hadoop", "fs", "-copyFromLocal", "-f",local_file, hdfs_file], stdin=PIPE, bufsize=-1)
 	print("Writing data to hdfs")
 	#subprocess.call(["hadoop fs -copyFromLocal   hdfs:///data/g6/raw/daily_data2.csv"], shell=True) # pas sur du chemin HDFS
 	put.communicate()
